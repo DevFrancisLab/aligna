@@ -1,8 +1,5 @@
 # 🎯 Aligna
-<div align="center">
-https://img.shields.io/badge/Aligna-Smart_Task_Scheduling-blue?style=for-the-badge
-https://img.shields.io/badge/Version-1.0.0--alpha-success?style=for-the-badge
-https://img.shields.io/badge/License-MIT-green?style=for-the-badge
+
 
 Intelligent Task Scheduling Powered by MeTTa Logical Reasoning
 
