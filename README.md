@@ -96,9 +96,9 @@ Features • Installation • Documentation • Contributing
 
 | Name | Role | Contact |
 |------|------|---------|
-| Francis Masila | Lead Developer | [francismaki14@gmail.com](mailto:francismaki14@gmail.com) |
+| Francis Masila | Lead Developer | [franciskioko14@gmail.com](mailto:francismaki14@gmail.com) |
 | Mogaka Mokaya | Frontend Developer | [mokayaj857@gmail.com](mailto:mokayaj857@gmail.com) |
-| Irene Nditi| Smart Scheduling Logic | [mokayaj857@gmail.com](mailto:irenenjoroge01@gmail.com) |
+| Irene Nditi| Smart Scheduling Logic | [irenenjoroge01.com](mailto:irenenjoroge01@gmail.com) |
 
 ## 📈 Project Milestones
 
