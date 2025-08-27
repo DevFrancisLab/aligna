@@ -261,17 +261,18 @@ export const api = {
     }
   ),
 
+  // MeTTa-powered schedule
   getSchedule: async () => fetchWithFallback(
     async () => {
       if (USE_MOCK) {
         await delay(500)
         return mockSchedule.map(item => ({ ...item, task: mockTasks.find(t => t.id === item.taskId) }))
       }
-      const response = await fetch(`${API_BASE_URL}/api/v1/schedule`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      })
+      const response = await fetch(`${API_BASE_URL}/brain/schedule/`)
       if (!response.ok) throw new Error('Failed to fetch schedule')
-      return await response.json()
+      const data = await response.json()
+      // Backend returns { schedule: [...] }
+      return data.schedule || []
     },
     async () => {
       await delay(500)
@@ -279,40 +280,90 @@ export const api = {
     }
   ),
 
-  // Next Task (AI-powered)
+  // MeTTa-powered next task
   getNextTask: async () => fetchWithFallback(
     async () => {
       if (USE_MOCK) {
         await delay(500)
         const nextTask = mockTasks.find(t => t.status === 'pending')
-        return nextTask ? {
-          task: nextTask,
-          recommendedTime: '2024-01-10T09:00:00Z',
-          reason: 'High priority task with approaching deadline'
-        } : null
+        return nextTask ? { next_task: nextTask } : null
       }
-      const tasks = await api.getTasks()
-      const response = await fetch(`${API_BASE_URL}/api/v1/brain/next-task/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(tasks)
-      })
+      const response = await fetch(`${API_BASE_URL}/brain/next-task/`)
       if (!response.ok) throw new Error('Failed to fetch next task')
       return await response.json()
     },
     async () => {
       await delay(500)
       const nextTask = mockTasks.find(t => t.status === 'pending')
-      return nextTask ? {
-        task: nextTask,
-        recommendedTime: '2024-01-10T09:00:00Z',
-        reason: 'High priority task with approaching deadline'
-      } : null
+      return nextTask ? { next_task: nextTask } : null
     }
-  )
+  ),
+
+  // Add a task to MeTTa
+  addTaskToMetta: async (taskData) => fetchWithFallback(
+    async () => {
+      const response = await fetch(`${API_BASE_URL}/brain/add-task/`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          id: taskData.id || `task-${Date.now()}`,
+          title: taskData.title,
+          description: taskData.description || '',
+          deadline: taskData.deadline,
+          priority: taskData.priority,
+          dependencies: taskData.dependencies || []
+        })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to add task to MeTTa')
+      }
+      return await response.json()
+    },
+    async () => {
+      // Mock implementation for development
+      await delay(500)
+      const newTask = {
+        ...taskData,
+        id: taskData.id || `task-${Date.now()}`,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      }
+      mockTasks.push(newTask)
+      return { message: `Task '${taskData.title}' added successfully`, schedule: [newTask] }
+    }
+  ),
+
+  // Complete a task in MeTTa
+  completeTaskInMetta: async (taskName) => fetchWithFallback(
+    async () => {
+      const response = await fetch(`${API_BASE_URL}/brain/complete-task/`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ name: taskName })
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to complete task in MeTTa')
+      }
+      return await response.json()
+    },
+    async () => {
+      // Mock implementation for development
+      await delay(500)
+      const taskIndex = mockTasks.findIndex(t => t.id === taskName)
+      if (taskIndex !== -1) {
+        mockTasks[taskIndex].status = 'completed'
+      }
+      return { message: `Task '${taskName}' marked as completed`, schedule: mockTasks }
+    }
+  ),
 }
 
 export default api
