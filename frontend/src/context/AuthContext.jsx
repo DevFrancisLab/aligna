@@ -77,6 +77,9 @@ export function AuthProvider({ children }) {
       // Store in localStorage
       localStorage.setItem('token', response.token)
       localStorage.setItem('user', JSON.stringify(response.user))
+      if (response.refresh) {
+        localStorage.setItem('refresh', response.refresh)
+      }
       
       dispatch({
         type: 'LOGIN_SUCCESS',
@@ -99,6 +102,9 @@ export function AuthProvider({ children }) {
       // Store in localStorage
       localStorage.setItem('token', response.token)
       localStorage.setItem('user', JSON.stringify(response.user))
+      if (response.refresh) {
+        localStorage.setItem('refresh', response.refresh)
+      }
       
       dispatch({
         type: 'LOGIN_SUCCESS',
@@ -112,10 +118,28 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    dispatch({ type: 'LOGOUT' })
+  const logout = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refresh')
+      if (refreshToken) {
+        // Call logout endpoint to blacklist the token
+        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/logout/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ refresh: refreshToken })
+        })
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      localStorage.removeItem('refresh')
+      dispatch({ type: 'LOGOUT' })
+    }
   }
 
   const forgotPassword = async (email) => {

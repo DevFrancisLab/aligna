@@ -65,116 +65,129 @@ const mockSchedule = [
 // Utility function to simulate API delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-// API functions with mock fallback
+// Helper to handle fetch with mock fallback
+const fetchWithFallback = async (fetchFn, fallbackFn) => {
+  try {
+    return await fetchFn()
+  } catch (error) {
+    console.error('API fetch failed:', error)
+    return await fallbackFn()
+  }
+}
+
+// API functions
 export const api = {
   // Authentication
-  async login(credentials) {
-    if (USE_MOCK) {
-      await delay(1000)
-      if (credentials.email === 'user@example.com' && credentials.password === 'password') {
-        return { user: mockUser, token: 'mock-jwt-token' }
+  login: async (credentials) => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(1000)
+        if (credentials.email === 'user@example.com' && credentials.password === 'password') {
+          return { user: mockUser, token: 'mock-jwt-token' }
+        }
+        throw new Error('Invalid credentials')
       }
-      throw new Error('Invalid credentials')
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
       })
-      
-      if (!response.ok) throw new Error('Login failed')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || errorData.non_field_errors?.[0] || 'Login failed')
+      }
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(1000)
       if (credentials.email === 'user@example.com' && credentials.password === 'password') {
         return { user: mockUser, token: 'mock-jwt-token' }
       }
       throw new Error('Invalid credentials')
     }
-  },
+  ),
 
-  async signup(userData) {
-    if (USE_MOCK) {
-      await delay(1000)
-      return { user: { ...mockUser, ...userData }, token: 'mock-jwt-token' }
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup`, {
+  signup: async (userData) => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(1000)
+        return { user: { ...mockUser, ...userData }, token: 'mock-jwt-token' }
+      }
+      const signupData = {
+        username: userData.email,
+        email: userData.email,
+        password: userData.password,
+        password_confirm: userData.confirmPassword || userData.password,
+        first_name: userData.name?.split(' ')[0] || '',
+        last_name: userData.name?.split(' ').slice(1).join(' ') || ''
+      }
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(signupData)
       })
-      
-      if (!response.ok) throw new Error('Signup failed')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(Object.values(errorData).flat().join(', ') || 'Signup failed')
+      }
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(1000)
       return { user: { ...mockUser, ...userData }, token: 'mock-jwt-token' }
     }
-  },
+  ),
 
-  async forgotPassword(email) {
-    if (USE_MOCK) {
-      await delay(1000)
-      return { message: 'Password reset email sent' }
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password`, {
+  forgotPassword: async (email) => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(1000)
+        return { message: 'Password reset email sent' }
+      }
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       })
-      
-      if (!response.ok) throw new Error('Failed to send reset email')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Failed to send reset email')
+      }
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(1000)
       return { message: 'Password reset email sent' }
     }
-  },
+  ),
 
   // Tasks
-  async getTasks() {
-    if (USE_MOCK) {
-      await delay(500)
-      return mockTasks
-    }
-
-    try {
+  getTasks: async () => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(500)
+        return mockTasks
+      }
       const response = await fetch(`${API_BASE_URL}/api/v1/tasks`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
-      
       if (!response.ok) throw new Error('Failed to fetch tasks')
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(500)
       return mockTasks
     }
-  },
+  ),
 
-  async createTask(taskData) {
-    if (USE_MOCK) {
-      await delay(500)
-      const newTask = {
-        id: Date.now().toString(),
-        ...taskData,
-        status: 'pending',
-        createdAt: new Date().toISOString()
+  createTask: async (taskData) => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(500)
+        const newTask = { id: Date.now().toString(), ...taskData, status: 'pending', createdAt: new Date().toISOString() }
+        mockTasks.push(newTask)
+        return newTask
       }
-      mockTasks.push(newTask)
-      return newTask
-    }
-
-    try {
       const response = await fetch(`${API_BASE_URL}/api/v1/tasks`, {
         method: 'POST',
         headers: {
@@ -183,35 +196,26 @@ export const api = {
         },
         body: JSON.stringify(taskData)
       })
-      
       if (!response.ok) throw new Error('Failed to create task')
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(500)
-      const newTask = {
-        id: Date.now().toString(),
-        ...taskData,
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      }
+      const newTask = { id: Date.now().toString(), ...taskData, status: 'pending', createdAt: new Date().toISOString() }
       mockTasks.push(newTask)
       return newTask
     }
-  },
+  ),
 
-  async updateTask(taskId, updates) {
-    if (USE_MOCK) {
-      await delay(500)
-      const taskIndex = mockTasks.findIndex(t => t.id === taskId)
-      if (taskIndex !== -1) {
+  updateTask: async (taskId, updates) => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(500)
+        const taskIndex = mockTasks.findIndex(t => t.id === taskId)
+        if (taskIndex === -1) throw new Error('Task not found')
         mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates }
         return mockTasks[taskIndex]
       }
-      throw new Error('Task not found')
-    }
-
-    try {
       const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`, {
         method: 'PUT',
         headers: {
@@ -220,99 +224,86 @@ export const api = {
         },
         body: JSON.stringify(updates)
       })
-      
       if (!response.ok) throw new Error('Failed to update task')
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(500)
       const taskIndex = mockTasks.findIndex(t => t.id === taskId)
-      if (taskIndex !== -1) {
-        mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates }
-        return mockTasks[taskIndex]
-      }
-      throw new Error('Task not found')
+      if (taskIndex === -1) throw new Error('Task not found')
+      mockTasks[taskIndex] = { ...mockTasks[taskIndex], ...updates }
+      return mockTasks[taskIndex]
     }
-  },
+  ),
 
-  async deleteTask(taskId) {
-    if (USE_MOCK) {
-      await delay(500)
-      const taskIndex = mockTasks.findIndex(t => t.id === taskId)
-      if (taskIndex !== -1) {
-        mockTasks.splice(taskIndex, 1)
+  deleteTask: async (taskId) => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(500)
+        const index = mockTasks.findIndex(t => t.id === taskId)
+        if (index === -1) throw new Error('Task not found')
+        mockTasks.splice(index, 1)
         return { success: true }
       }
-      throw new Error('Task not found')
-    }
-
-    try {
       const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
-      
       if (!response.ok) throw new Error('Failed to delete task')
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(500)
-      const taskIndex = mockTasks.findIndex(t => t.id === taskId)
-      if (taskIndex !== -1) {
-        mockTasks.splice(taskIndex, 1)
-        return { success: true }
+      const index = mockTasks.findIndex(t => t.id === taskId)
+      if (index === -1) throw new Error('Task not found')
+      mockTasks.splice(index, 1)
+      return { success: true }
+    }
+  ),
+
+  getSchedule: async () => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(500)
+        return mockSchedule.map(item => ({ ...item, task: mockTasks.find(t => t.id === item.taskId) }))
       }
-      throw new Error('Task not found')
-    }
-  },
-
-  // Schedule
-  async getSchedule() {
-    if (USE_MOCK) {
-      await delay(500)
-      return mockSchedule.map(item => ({
-        ...item,
-        task: mockTasks.find(t => t.id === item.taskId)
-      }))
-    }
-
-    try {
       const response = await fetch(`${API_BASE_URL}/api/v1/schedule`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
-      
       if (!response.ok) throw new Error('Failed to fetch schedule')
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(500)
-      return mockSchedule.map(item => ({
-        ...item,
-        task: mockTasks.find(t => t.id === item.taskId)
-      }))
+      return mockSchedule.map(item => ({ ...item, task: mockTasks.find(t => t.id === item.taskId) }))
     }
-  },
+  ),
 
-  async getNextTask() {
-    if (USE_MOCK) {
-      await delay(500)
-      const nextTask = mockTasks.find(t => t.status === 'pending')
-      return nextTask ? {
-        task: nextTask,
-        recommendedTime: '2024-01-10T09:00:00Z',
-        reason: 'High priority task with approaching deadline'
-      } : null
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/schedule/next`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+  // Next Task (AI-powered)
+  getNextTask: async () => fetchWithFallback(
+    async () => {
+      if (USE_MOCK) {
+        await delay(500)
+        const nextTask = mockTasks.find(t => t.status === 'pending')
+        return nextTask ? {
+          task: nextTask,
+          recommendedTime: '2024-01-10T09:00:00Z',
+          reason: 'High priority task with approaching deadline'
+        } : null
+      }
+      const tasks = await api.getTasks()
+      const response = await fetch(`${API_BASE_URL}/api/v1/brain/next-task/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(tasks)
       })
-      
       if (!response.ok) throw new Error('Failed to fetch next task')
       return await response.json()
-    } catch (error) {
-      // Fallback to mock
+    },
+    async () => {
       await delay(500)
       const nextTask = mockTasks.find(t => t.status === 'pending')
       return nextTask ? {
@@ -321,7 +312,7 @@ export const api = {
         reason: 'High priority task with approaching deadline'
       } : null
     }
-  }
+  )
 }
 
 export default api

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Clock, Calendar, Zap, Loader2 } from 'lucide-react'
 import { getPriorityColor, formatDateTime } from '@/lib/utils'
 
-export default function NextTaskCard() {
+export default function NextTaskCard({ onTaskStarted }) {
   const [nextTask, setNextTask] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -20,6 +20,7 @@ export default function NextTaskCard() {
       setIsLoading(true)
       const data = await api.getNextTask()
       setNextTask(data)
+      setError('')
     } catch (err) {
       setError('Failed to load next task')
       console.error('Failed to load next task:', err)
@@ -28,9 +29,29 @@ export default function NextTaskCard() {
     }
   }
 
-  const handleStartTask = () => {
-    // In a real app, this would update the task status and start tracking
-    console.log('Starting task:', nextTask?.task?.id)
+  const handleStartTask = async () => {
+    if (!nextTask?.task) return
+    const { task } = nextTask
+
+    if (task.dependencies?.length) {
+      const pendingDeps = task.dependencies.filter(depId => {
+        const depTask = nextTask?.allTasks?.find(t => t.id === depId)
+        return depTask?.status !== 'completed'
+      })
+      if (pendingDeps.length) {
+        alert('Cannot start task. Pending dependencies exist.')
+        return
+      }
+    }
+
+    try {
+      await api.updateTask(task.id, { status: 'in_progress' })
+      if (onTaskStarted) onTaskStarted(task.id)
+      loadNextTask() // refresh recommendation
+    } catch (err) {
+      console.error('Failed to start task:', err)
+      alert('Failed to start task.')
+    }
   }
 
   if (isLoading) {
@@ -66,12 +87,7 @@ export default function NextTaskCard() {
             <p className="text-gray-500">
               {error || 'No tasks to recommend right now'}
             </p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={loadNextTask}
-              className="mt-4"
-            >
+            <Button variant="outline" size="sm" onClick={loadNextTask} className="mt-4">
               Refresh
             </Button>
           </div>
@@ -99,7 +115,13 @@ export default function NextTaskCard() {
           {task.description && (
             <p className="text-sm text-gray-600 mb-3">{task.description}</p>
           )}
-          
+
+          {task.dependencies?.length > 0 && (
+            <div className="text-sm text-yellow-700 mb-2">
+              Depends on: {task.dependencies.join(', ')}
+            </div>
+          )}
+
           <div className="flex items-center space-x-2 mb-3">
             <Badge className={getPriorityColor(task.priority)}>
               {task.priority}
@@ -132,18 +154,10 @@ export default function NextTaskCard() {
         )}
 
         <div className="flex space-x-2">
-          <Button 
-            onClick={handleStartTask}
-            className="flex-1"
-            size="sm"
-          >
+          <Button onClick={handleStartTask} className="flex-1" size="sm">
             Start Task
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={loadNextTask}
-          >
+          <Button variant="outline" size="sm" onClick={loadNextTask}>
             Skip
           </Button>
         </div>

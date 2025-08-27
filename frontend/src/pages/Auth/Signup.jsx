@@ -48,8 +48,7 @@ export default function Signup() {
     }
 
     try {
-      const { confirmPassword, ...signupData } = formData
-      await signup(signupData)
+      await signup(formData)
       navigate('/dashboard')
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.')
