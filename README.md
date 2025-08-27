@@ -73,8 +73,8 @@ Aligna is a cutting-edge platform designed to [briefly describe what Aligna does
 
 | Name               | Role              | Contact                                      |
 |--------------------|-------------------|----------------------------------------------|
-| [Team Member 1]   | [Role]            | [Email]                                      |
-| [Team Member 2]   | [Role]            | [Email]                                      |
+| [Francis Masila]   | [Lead developer]            | [francismaki14@gmail.com]                                      |
+| [mogaka mokaya]   | [frontend developer]            | [mokayaj857@gmail.com]                                      |
 
 ## 📊 Project Status
 
