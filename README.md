@@ -2,38 +2,58 @@
 
 ## 🌍 Overview
 
-Aligna is a cutting-edge platform designed to [briefly describe what Aligna does - e.g., "streamline team collaboration and project management through intelligent task alignment and real-time synchronization"].
+**Aligna** is a smart task scheduling and management platform that automatically prioritizes and arranges tasks based on deadlines, dependencies, and importance. Unlike traditional to-do list apps, Aligna uses intelligent scheduling to generate the most efficient execution order, ensuring prerequisite tasks are completed on time and urgent tasks are never missed. It is designed for individuals managing daily responsibilities as well as teams coordinating complex projects.  
+
+---
 
 ## ✨ Key Features
 
 ### 🔄 Smart Task Alignment
-- [Feature 1 description]
-- [Feature 2 description]
-- [Feature 3 description]
+- Automatically prioritizes tasks by urgency, importance, and dependencies.  
+- Ensures dependent tasks are completed in logical sequence.  
+- Optimizes deadlines to prevent missed or late tasks.  
 
 ### 🤖 Intelligent Automation
-- [Automation feature 1]
-- [Automation feature 2]
-- [Automation feature 3]
+- Adapts in real time when new tasks are added or deadlines change.  
+- Provides clear next-task recommendations to guide productivity.  
+- Balances workload for efficient time management.  
 
 ### 📊 Real-time Analytics
-- [Analytics feature 1]
-- [Analytics feature 2]
-- [Analytics feature 3]
+- Graph-based visualization of task dependencies.  
+- Dynamic task list that updates as tasks are completed.  
+- Planned analytics dashboard for productivity insights.  
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)  
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)  
 
 ### Backend
-![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)  
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)  
 
 ### Database
-![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)  
 
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.12+  
+- pip & virtualenv  
+- Node.js (for frontend)  
+- PostgreSQL  
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone [your-repository-url]
+   cd aligna
 ## 🚀 Getting Started
 
 ### Prerequisites
