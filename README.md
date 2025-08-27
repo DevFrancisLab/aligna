@@ -1,4 +1,3 @@
-Got it 🚀 — I’ll prepare a **complete README.md file** for your project, including:
 
 * Overview
 * Features
