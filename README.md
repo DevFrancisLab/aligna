@@ -71,22 +71,32 @@ Aligna is a cutting-edge platform designed to [briefly describe what Aligna does
 
 ## 👥 The Team
 
-| Name               | Role              | Contact                                      |
-|--------------------|-------------------|----------------------------------------------|
-| [Francis Masila]   | [Lead developer]            | [francismaki14@gmail.com]                                      |
-| [mogaka mokaya]   | [frontend developer]            | [mokayaj857@gmail.com]                                      |
+| Name           | Role                   | Contact                                                   |
+| -------------- | ---------------------- | --------------------------------------------------------- |
+| Francis Masila | Lead Developer         | [francismaki14@gmail.com](mailto:francismaki14@gmail.com) |
+| Mogaka Mokaya  | Frontend Developer     | [mokayaj857@gmail.com](mailto:mokayaj857@gmail.com)       |
+| John Mokaya    | Smart Scheduling Logic | \[add-your-email-here]                                    |
+
+---
 
 ## 📊 Project Status
 
-![Development Status](https://img.shields.io/badge/Status-Development-yellow?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-0.1.0-blue?style=for-the-badge)
+* **Status**: Development
+* **Version**: 0.1.0
+
+---
 
 ## 📝 License
 
-This project is licensed under the [License Name] - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## 🙏 Acknowledgments
 
-- [Any libraries or frameworks used]
-- [Inspiration]
-- [References]
+* MeTTa programming language for task representation and scheduling
+* React + Node.js ecosystem for the frontend and backend
+* Inspiration from productivity and workflow automation tools
+* Open-source community for frameworks and support
+
+```
