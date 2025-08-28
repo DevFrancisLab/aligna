@@ -1,5 +1,6 @@
 import React from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import Aligna_logo from '../assets/Aligna_logo.png'
 
 export default function Navbar() {
   const { user } = useAuth()
@@ -9,7 +10,7 @@ export default function Navbar() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">A</span>
+             <img src={Aligna_logo} alt="Aligna Logo" />
           </div>
           <span className="text-2xl font-bold text-gray-900">Aligna</span>
         </div>
