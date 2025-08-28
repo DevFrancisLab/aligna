@@ -83,7 +83,7 @@ graph TB
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/smart-todo-scheduler.git
+git clone https://github.com/your-username/aligna.git
 cd smart-todo-scheduler
 
 # Install Python dependencies
