@@ -84,7 +84,7 @@ graph TB
 ```bash
 # Clone the repository
 git clone https://github.com/your-username/aligna.git
-cd smart-todo-scheduler
+cd aligna
 
 # Install Python dependencies
 pip install -r requirements.txt
